@@ -26,7 +26,7 @@ app_license = "mit"
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/chitragupta_desk/css/chitragupta_desk.css"
-# app_include_js = "/assets/chitragupta_desk/js/chitragupta_desk.js"
+app_include_js = "/assets/chitragupta_desk/js/chitragupta_desk.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/chitragupta_desk/css/chitragupta_desk.css"

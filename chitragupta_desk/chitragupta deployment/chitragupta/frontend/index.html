@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chitragupta · Portal</title>
+<style>
+ :root{--bg:#eef1f4;--surface:#fff;--raise:#f6f8fa;--line:#e0e5ea;--line2:#cfd6de;
+ --text:#1b2330;--muted:#5f6b7a;--faint:#8a94a1;--accent:#0e8c7f;
+ --go:#1f9d57;--go-bg:#e2f3e9;--go-tx:#15662f;--hold:#c77d11;--hold-bg:#fbecce;--hold-tx:#825107;
+ --stop:#d2453c;--stop-bg:#fbe3e1;--stop-tx:#9b271f;--info:#2f6fb0;--info-bg:#e6effa;--info-tx:#1d4e7a;
+ --plan-bg:#eceff3;--plan-tx:#5f6b7a;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+ --mono:ui-monospace,"SF Mono",Menlo,monospace;}
+ *{box-sizing:border-box}html,body{margin:0}
+ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.55;padding:16px}
+ .wrap{max-width:1160px;margin:0 auto}
+ .top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:11px 16px;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+ .glyph{width:28px;height:28px;border-radius:8px;background:var(--accent);display:grid;place-items:center;color:#fff;font-weight:700}
+ .top b{font-weight:600}.top small{color:var(--faint);font-size:11px;letter-spacing:.06em;text-transform:uppercase;display:block}
+ select{margin-left:auto;font:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--line2);border-radius:8px;background:var(--raise);color:var(--text)}
+ a.wlink{font-size:12px;color:var(--accent);text-decoration:none;border:1px solid var(--line);padding:6px 10px;border-radius:8px}
+ .app{display:grid;grid-template-columns:250px 1fr 310px;gap:13px;margin-top:13px;height:min(78vh,680px)}
+ .col{background:var(--surface);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;min-height:0}
+ .col h2{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin:0;padding:12px 14px 8px;font-weight:600}
+ .scroll{overflow-y:auto;padding:0 12px 13px;min-height:0}
+ .brief{margin:4px 12px 10px;background:var(--info-bg);border:1px solid #cfe0f2;border-radius:10px;padding:10px 12px;font-size:12.5px}
+ .brief b{display:block;margin-bottom:4px}
+ .brief li{margin-left:16px}
+ .chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 8px}
+ .chip{cursor:pointer;background:var(--raise);border:1px solid var(--accent);color:var(--accent);border-radius:16px;padding:5px 11px;font:inherit;font-size:12px}
+ .chip:hover{background:var(--accent);color:#fff}
+ .memhead{display:flex;align-items:center;padding:10px 14px 4px}
+ .memhead h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin:0;font-weight:600}
+ .mem{margin:4px 12px;background:var(--raise);border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:12px;display:flex;gap:6px;align-items:center}
+ .mem .k{font-family:var(--mono);color:var(--muted)}
+ .mem button{margin-left:auto;border:0;background:none;color:var(--stop);cursor:pointer;font-size:12px}
+ .none{color:var(--faint);font-size:12px;padding:4px 14px 10px}
+ .skl{margin:4px 12px;font-size:12px;color:var(--muted);border-bottom:1px dashed var(--line);padding:5px 2px;display:flex;justify-content:space-between}
+ .skl b{font-family:var(--mono);color:var(--text)}
+ .msg{margin:11px 0;max-width:92%}.msg .who{font-size:10.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px}
+ .msg.user{margin-left:auto;text-align:right}.bubble{display:inline-block;padding:9px 12px;border-radius:11px;text-align:left}
+ .msg.user .bubble{background:var(--accent);color:#fff}.msg.agent .bubble{background:var(--surface);border:1px solid var(--line)}
+ .bubble b{font-weight:600}
+ .card{background:var(--surface);border:1px solid var(--hold);border-radius:11px;margin:11px 0;overflow:hidden}
+ .card .head{display:flex;align-items:center;gap:8px;padding:10px 13px;border-bottom:1px solid var(--line)}
+ .card .ttl{font-weight:600;font-size:12.5px}
+ .badge{margin-left:auto;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:16px;background:var(--hold-bg);color:var(--hold-tx)}
+ .badge.go{background:var(--go-bg);color:var(--go-tx)}.badge.off{background:var(--raise);color:var(--muted)}
+ .body{padding:10px 13px;display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:12.5px}
+ .body .k{color:var(--muted)}
+ .body input{font:inherit;font-family:var(--mono);font-size:12.5px;border:1px solid var(--line);border-radius:6px;padding:2px 6px;width:120px;background:var(--raise)}
+ .why{padding:0 13px 10px;font-size:11.5px;color:var(--muted)}
+ .acts{display:flex;gap:7px;padding:0 13px 11px}
+ .btn{cursor:pointer;border-radius:7px;padding:7px 13px;font:inherit;font-size:12px;font-weight:600;border:1px solid var(--line2);background:var(--surface);color:var(--text)}
+ .btn.approve{background:var(--go);color:#fff;border-color:transparent}.btn.reject{background:transparent;color:var(--muted)}
+ .resolved .acts,.resolved .body input{pointer-events:none}.resolved{opacity:.72;border-color:var(--line)}
+ .res{padding:0 13px 10px;font-size:12px;font-weight:600}
+ .learn{padding:0 13px 10px;font-size:11.5px;color:var(--info-tx)}
+ .compose{border-top:1px solid var(--line);padding:10px 12px;display:flex;gap:8px}
+ .compose input{flex:1;background:var(--raise);border:1px solid var(--line);border-radius:8px;padding:9px 11px;font:inherit;font-size:13px}
+ .compose input:focus{outline:none;border-color:var(--accent)}
+ .compose .send{cursor:pointer;background:var(--accent);color:#fff;border:0;border-radius:8px;padding:0 15px;font:inherit;font-weight:600}
+ .legend{display:flex;gap:10px;padding:0 14px 8px;font-size:10.5px;color:var(--muted);flex-wrap:wrap}
+ .legend span{display:flex;align-items:center;gap:4px}.dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+ .ev{font-family:var(--mono);font-size:11.5px;padding:5px 0;border-bottom:1px dashed var(--line);display:grid;grid-template-columns:auto 1fr;gap:7px}
+ .ev .tg{font-size:9.5px;font-weight:700;padding:1px 5px;border-radius:4px;text-transform:uppercase;height:fit-content}
+ .tg.plan{color:var(--plan-tx);background:var(--plan-bg)}.tg.info{color:var(--info-tx);background:var(--info-bg)}.tg.go{color:var(--go-tx);background:var(--go-bg)}.tg.hold{color:var(--hold-tx);background:var(--hold-bg)}.tg.stop{color:var(--stop-tx);background:var(--stop-bg)}
+ .empty{color:var(--faint);font-size:12px;padding:12px;text-align:center}
+ @media(max-width:860px){.app{grid-template-columns:1fr;height:auto}.scroll{max-height:290px}}
+
+ .lock{position:fixed;inset:0;background:rgba(238,241,244,.97);display:grid;place-items:center;z-index:50}
+ .lockcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:26px 28px;width:330px}
+ .lockcard h1{font-size:16px;margin:0 0 2px}.lockcard p{margin:0 0 14px;color:var(--muted);font-size:12.5px}
+ .lockcard select,.lockcard input{width:100%;font:inherit;font-size:13.5px;padding:9px 11px;border:1px solid var(--line2);border-radius:8px;margin-bottom:9px;background:var(--raise)}
+ .lockcard button{width:100%;font:inherit;font-weight:600;padding:10px;border:0;border-radius:8px;background:var(--accent);color:#fff;cursor:pointer}
+ .lockerr{color:var(--stop);font-size:12px;min-height:16px;margin-bottom:6px}
+</style>
+</head>
+<body>
+<div class="lock" id="lock"><div class="lockcard">
+ <h1>Chitragupta</h1><p>Sign in — identity comes from your session, not the page. (Demo password: <b>demo</b>)</p>
+ <select id="luser"></select><input id="lpw" type="password" placeholder="Password" value="demo">
+ <div class="lockerr" id="lerr"></div><button id="lgo">Sign in</button>
+</div></div>
+<div class="wrap">
+ <div class="top">
+  <div class="glyph">चि</div><div><b>Chitragupta</b><small>portal · live backend</small></div>
+  <a class="wlink" href="/widget" target="_blank">Open embedded widget (in-ERP view) →</a>
+  <span id="who" style="margin-left:auto;font-size:12.5px;color:var(--muted)"></span>
+  <button id="logout" class="btn" style="font-size:11.5px;padding:5px 10px">Log out</button>
+ </div>
+ <div class="app">
+  <div class="col">
+   <h2>Your day</h2>
+   <div class="scroll">
+    <div class="brief" id="brief"><b>…</b></div>
+    <div class="memhead"><h3>What you've taught me</h3></div>
+    <div id="mems"><div class="none">Nothing yet — try “remember default_warehouse Unit-2”.</div></div>
+    <div class="memhead"><h3>Skills (learning)</h3></div>
+    <div id="skills"><div class="none">No skills learned yet.</div></div>
+   </div>
+  </div>
+  <div class="col">
+   <h2>Conversation</h2>
+   <div class="chips" id="chips"></div>
+   <div class="scroll" id="chat"></div>
+   <div class="compose"><input id="input" placeholder="Ask anything, or tell it what to do…"><button class="send" id="send">Send</button></div>
+  </div>
+  <div class="col">
+   <h2>Live activity</h2>
+   <div class="legend"><span><i class="dot" style="background:var(--info)"></i>read</span><span><i class="dot" style="background:var(--go)"></i>auto</span><span><i class="dot" style="background:var(--hold)"></i>approval</span><span><i class="dot" style="background:var(--stop)"></i>blocked / RBAC</span></div>
+   <div class="scroll" id="stream"><div class="empty" id="se">Steps appear here as it works.</div></div>
+  </div>
+ </div>
+ <div style="color:var(--faint);font-size:11px;text-align:center;margin-top:11px">Running against the FakeERP stand-in · connect your ERPNext via docs/03-connect-to-erpnext.md</div>
+</div>
+<script>
+const $=s=>document.querySelector(s),chat=$('#chat'),stream=$('#stream'),input=$('#input');
+let USER=null,TOKEN=sessionStorage.getItem('cg_token'),UROLE=null,UNAME=null;
+function hdrs(extra){return Object.assign({'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},extra||{});}
+const CHIPS={
+ 'Purchase User':['How much stock of M6 hex screw?','Raise a PO for the screw','remember default_warehouse Unit-2','Reorder the M8 bolt'],
+ 'Sales User':['How much stock of M8 bolt?','Raise a PO for the screw (will be denied)'],
+ 'Accounts Manager':['Delete the GL entry for January','How much stock of M6 hex screw?'],
+ 'System Manager':['How much stock of M6 hex screw?','Delete the GL entry for January']};
+function fmt(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');}
+function um(t){chat.insertAdjacentHTML('beforeend',`<div class="msg user"><div class="who">You</div><div class="bubble">${fmt(t)}</div></div>`);chat.scrollTop=1e9;}
+function am(h){chat.insertAdjacentHTML('beforeend',`<div class="msg agent"><div class="who">Chitragupta</div><div class="bubble">${h}</div></div>`);chat.scrollTop=1e9;}
+function ev(tag,text){$('#se')?.remove();stream.insertAdjacentHTML('beforeend',`<div class="ev"><span class="tg ${tag}">${tag}</span><span>${(text||'').replace(/</g,'&lt;')}</span></div>`);stream.scrollTop=1e9;}
+async function j(url,opts){opts=opts||{};opts.headers=hdrs(opts.headers);const r=await fetch(url,opts);
+ if(r.status===401){sessionStorage.removeItem('cg_token');location.reload();return {};}
+ return r.json();}
+function card(p){
+ const editable=['qty','rate','warehouse','terms'];
+ const rows=Object.entries(p.fields||{}).filter(([k])=>!['name','docstatus'].includes(k)).map(([k,v])=>
+   `<div class="k">${k}</div><div>${editable.includes(k)?`<input data-f="${k}" value="${(''+v).replace(/"/g,'&quot;')}">`:`<span style="font-family:var(--mono)">${(''+v).replace(/</g,'&lt;')}</span>`}</div>`).join('');
+ const id='c'+p.id;
+ chat.insertAdjacentHTML('beforeend',`<div class="card" id="${id}"><div class="head"><span class="ttl">${p.summary.replace(/</g,'&lt;')}</span><span class="badge">Needs approval</span></div><div class="body">${rows}</div><div class="why">Why: ${p.reason.replace(/</g,'&lt;')} · edit any field before approving — I learn from your edits.</div><div class="acts"><button class="btn approve">Approve &amp; submit</button><button class="btn reject">Reject</button></div></div>`);
+ const el=document.getElementById(id);
+ el.querySelector('.approve').onclick=async()=>{
+   const edits={};el.querySelectorAll('input[data-f]').forEach(i=>{const orig=(''+p.fields[i.dataset.f]);if(i.value!==orig)edits[i.dataset.f]=isNaN(+i.value)?i.value:+i.value;});
+   const r=await j(`/api/proposals/${p.id}/approve`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({edits:Object.keys(edits).length?edits:null})});
+   if(r.error){am(fmt('**Cannot approve:** '+r.error));ev('stop','approve denied: '+r.error);return;}
+   el.classList.add('resolved');const b=el.querySelector('.badge');b.className='badge go';b.textContent='Done';
+   ev('go','approved → submit');ev('go',`read back ${r.readback_ok?'✓ matches':'✗ MISMATCH'}`);ev('go',`submitted ✓ ${r.submitted}`);
+   el.insertAdjacentHTML('beforeend',`<div class="res" style="color:var(--go)">✓ Submitted as ${r.submitted} — read-back ${r.readback_ok?'verified':'FAILED'}</div>`);
+   (r.learned||[]).forEach(n=>{el.insertAdjacentHTML('beforeend',`<div class="learn">🧠 ${n.replace(/</g,'&lt;')}</div>`);ev('info',n);});
+   refreshSide();
+ };
+ el.querySelector('.reject').onclick=async()=>{
+   await j(`/api/proposals/${p.id}/reject`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
+   el.classList.add('resolved');const b=el.querySelector('.badge');b.className='badge off';b.textContent='Rejected';
+   el.insertAdjacentHTML('beforeend','<div class="res" style="color:var(--muted)">Rejected — nothing written.</div>');ev('plan','rejected → no write');
+ };
+ chat.scrollTop=1e9;
+}
+async function ask(text){
+ if(!text.trim())return;um(text);
+ const r=await j('/api/command',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
+ (r.activity||[]).forEach(a=>ev(a.tag,a.text));
+ if(r.reply)am(fmt(r.reply));
+ (r.proposals||[]).forEach(card);
+ refreshSide();
+}
+async function refreshSide(){
+ const b=await j('/api/brief');
+ $('#brief').innerHTML=`<b>${b.greeting}</b><ul style="margin:4px 0;padding:0">${b.items.map(i=>`<li>${i.replace(/</g,'&lt;')}</li>`).join('')}</ul>`;
+ const m=await j('/api/memory');
+ $('#mems').innerHTML=m.memories.length?m.memories.map(x=>`<div class="mem"><span class="k">${x.key}</span> ${(''+x.value).replace(/</g,'&lt;')} <button data-id="${x.id}">forget</button></div>`).join(''):'<div class="none">Nothing yet — try “remember default_warehouse Unit-2”.</div>';
+ document.querySelectorAll('#mems button').forEach(btn=>btn.onclick=async()=>{await fetch(`/api/memory/${btn.dataset.id}`,{method:'DELETE'});refreshSide();});
+ const s=await j('/api/skills');
+ $('#skills').innerHTML=s.skills.length?s.skills.map(k=>`<div class="skl"><span>${k.name}</span><b>${k.approved_clean}/${k.runs} clean${k.vetted?' · vetted':''}</b></div>`).join(''):'<div class="none">No skills learned yet.</div>';
+}
+async function initLogin(){
+ const lock=document.getElementById('lock');
+ const u=await (await fetch('/api/users')).json();
+ const sel=document.getElementById('luser');
+ sel.innerHTML=u.users.map(x=>`<option value="${x.id}">${x.full_name} — ${x.roles.join(', ')}</option>`).join('');
+ document.getElementById('lgo').onclick=async()=>{
+   const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},
+     body:JSON.stringify({user:sel.value,password:document.getElementById('lpw').value})});
+   if(!r.ok){document.getElementById('lerr').textContent='Invalid credentials';return;}
+   const d=await r.json();TOKEN=d.token;USER=d.user;UNAME=d.full_name;UROLE=d.roles[0];
+   sessionStorage.setItem('cg_token',TOKEN);
+   lock.style.display='none';start();
+ };
+}
+function setChips(){
+ const chips=CHIPS[UROLE]||CHIPS['Purchase User'];
+ $('#chips').innerHTML=chips.map(c=>`<button class="chip">${c}</button>`).join('');
+ document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>ask(c.textContent));
+}
+function hello(){am('Hi — I\'m your assistant, scoped to <b>your</b> role and permissions. Try a chip, or type. I learn from every edit you make before approving.');}
+$('#send').onclick=()=>{const v=input.value.trim();if(v){input.value='';ask(v);}};
+input.addEventListener('keydown',e=>{if(e.key==='Enter'){const v=input.value.trim();if(v){input.value='';ask(v);}}});
+function start(){
+ document.getElementById('who').textContent=UNAME+' — '+UROLE;
+ document.getElementById('logout').onclick=async()=>{await j('/api/logout',{method:'POST'});sessionStorage.removeItem('cg_token');location.reload();};
+ setChips();hello();refreshSide();
+}
+initLogin();
+</script>
+</body>
+</html>

@@ -1,4 +1,3 @@
-window.CHITRAGUPTA_URL = "http://192.168.179.1:8001";
 /* ============================================================================
  * chitragupta_desk.js — the Chitragupta chatbox, INSIDE ERPNext.
  *

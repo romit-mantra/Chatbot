@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chitragupta · Embedded in ERPNext</title>
+<style>
+ :root{--bg:#f3f4f6;--desk:#fff;--line:#e3e6ea;--text:#1f272e;--muted:#6c7680;--faint:#98a1ab;
+ --accent:#0e8c7f;--erp:#4c5a67;--go:#1f9d57;--go-bg:#e2f3e9;--go-tx:#15662f;
+ --hold-bg:#fbecce;--hold-tx:#825107;--stop-bg:#fbe3e1;--stop-tx:#9b271f;
+ --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;--mono:ui-monospace,Menlo,monospace;}
+ *{box-sizing:border-box}html,body{margin:0;height:100%}
+ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;display:flex;flex-direction:column}
+ /* fake ERPNext desk chrome */
+ .desknav{background:var(--desk);border-bottom:1px solid var(--line);padding:9px 18px;display:flex;align-items:center;gap:14px}
+ .desknav .logo{font-weight:700;color:var(--erp)}
+ .desknav .bc{color:var(--muted);font-size:13px}
+ .desknav .user{margin-left:auto;font-size:12.5px;color:var(--muted)}
+ .desknav select{font:inherit;font-size:12.5px;border:1px solid var(--line);border-radius:7px;padding:4px 8px}
+ .stage{flex:1;display:flex;min-height:0}
+ .doc{flex:1;padding:22px 26px;overflow-y:auto}
+ .tabs{display:flex;gap:8px;margin-bottom:14px}
+ .tab{cursor:pointer;font-size:12.5px;border:1px solid var(--line);background:var(--desk);border-radius:8px;padding:6px 12px;color:var(--muted)}
+ .tab.on{border-color:var(--erp);color:var(--erp);font-weight:600}
+ .sheet{background:var(--desk);border:1px solid var(--line);border-radius:10px;padding:18px 20px;max-width:660px}
+ .sheet h1{font-size:17px;margin:0 0 2px}
+ .sheet .status{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:12px;background:var(--go-bg);color:var(--go-tx);margin-bottom:12px}
+ .grid{display:grid;grid-template-columns:auto 1fr;gap:7px 20px;font-size:13px}
+ .grid .k{color:var(--muted)}.grid .v{font-family:var(--mono)}
+ .note{margin-top:14px;font-size:12px;color:var(--faint)}
+ /* the Chitragupta widget */
+ .cg{width:360px;border-left:1px solid var(--line);background:var(--desk);display:flex;flex-direction:column;min-height:0}
+ .cghead{display:flex;align-items:center;gap:9px;padding:11px 14px;border-bottom:1px solid var(--line)}
+ .glyph{width:26px;height:26px;border-radius:7px;background:var(--accent);display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px}
+ .cghead b{font-weight:600;font-size:13.5px}
+ .cghead small{display:block;color:var(--faint);font-size:10.5px}
+ .ctx{margin:10px 12px 0;background:#eef6f5;border:1px solid #cfe6e2;border-radius:9px;padding:7px 10px;font-size:11.5px;color:var(--accent)}
+ .ctx b{font-family:var(--mono)}
+ .chat{flex:1;overflow-y:auto;padding:6px 12px 12px;min-height:0}
+ .msg{margin:10px 0;max-width:94%}.msg.user{margin-left:auto;text-align:right}
+ .bubble{display:inline-block;padding:8px 11px;border-radius:10px;font-size:13px;text-align:left}
+ .msg.user .bubble{background:var(--accent);color:#fff}.msg.agent .bubble{background:var(--bg);border:1px solid var(--line)}
+ .card{border:1px solid #ecd9ae;border-radius:10px;margin:10px 0;overflow:hidden;font-size:12.5px}
+ .card .h{display:flex;padding:9px 11px;border-bottom:1px solid var(--line);font-weight:600}
+ .badge{margin-left:auto;font-size:10px;font-weight:600;padding:2px 8px;border-radius:14px;background:var(--hold-bg);color:var(--hold-tx)}
+ .badge.go{background:var(--go-bg);color:var(--go-tx)}
+ .b{padding:9px 11px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px}
+ .b .k{color:var(--muted)}.b .v{font-family:var(--mono)}
+ .a{display:flex;gap:6px;padding:0 11px 10px}
+ .btn{cursor:pointer;border-radius:7px;padding:6px 11px;font:inherit;font-size:12px;font-weight:600;border:1px solid var(--line)}
+ .btn.approve{background:var(--go);color:#fff;border-color:transparent}
+ .resolved .a{display:none}.resolved{opacity:.72}
+ .res{padding:0 11px 9px;font-size:11.5px;font-weight:600;color:var(--go-tx)}
+ .chips{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px 0}
+ .chip{cursor:pointer;background:var(--bg);border:1px solid var(--accent);color:var(--accent);border-radius:14px;padding:4px 10px;font:inherit;font-size:11.5px}
+ .compose{border-top:1px solid var(--line);padding:9px 11px;display:flex;gap:7px}
+ .compose input{flex:1;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;font-size:12.5px;background:var(--bg)}
+ .compose button{cursor:pointer;background:var(--accent);color:#fff;border:0;border-radius:8px;padding:0 13px;font:inherit;font-weight:600}
+</style>
+</head>
+<body>
+ <div class="desknav"><span class="logo">ERPNext</span><span class="bc">Buying › Purchase Order</span>
+  <span class="user">Logged in as <select id="user"><option value="ravi">Ravi (Purchase)</option><option value="meera">Meera (Sales)</option><option value="priya">Priya (Accounts Mgr)</option></select></span></div>
+ <div class="stage">
+  <div class="doc">
+   <div class="tabs" id="tabs"></div>
+   <div id="sheet"></div>
+   <div class="note">⬑ This simulates the ERPNext Desk. Chitragupta (right) is embedded as a Frappe app: it inherits your login — no second sign-in — and it can see which document you have open. Try "what's the status of this?" then switch users to watch permissions change what it will do.</div>
+  </div>
+  <div class="cg">
+   <div class="cghead"><div class="glyph">चि</div><div><b>Chitragupta</b><small>your assistant · acting as you</small></div></div>
+   <div class="ctx" id="ctx"></div>
+   <div class="chips">
+     <button class="chip" data-t="What's the status of this?">status of this?</button>
+     <button class="chip" data-t="How much stock of M6 hex screw?">stock check</button>
+     <button class="chip" data-t="Raise a PO for the screw">raise PO</button>
+   </div>
+   <div class="chat" id="chat"></div>
+   <div class="compose"><input id="input" placeholder="Ask about this screen, or anything…"><button id="send">Send</button></div>
+  </div>
+ </div>
+<script>
+const $=s=>document.querySelector(s),chat=$('#chat');
+let USER='ravi',TOKEN=null;
+async function erpSession(u){ // simulates inheriting the ERP login session
+ const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({user:u,password:'demo'})});
+ const d=await r.json();TOKEN=d.token;USER=u;
+}
+const DOCS=[
+ {doctype:'Purchase Order',name:'PUR-2026-00031',fields:{Supplier:'ACME Fasteners',Item:'M6 hex screw',Qty:'5,000',Rate:'₹12.40',Total:'₹62,000',Status:'To Receive'}},
+ {doctype:'Item',name:'M8 bolt',fields:{'Stock qty':'1,800','Reorder level':'2,500',UOM:'Nos'}},
+ {doctype:'GL Entry',name:'GL-2026-00001',fields:{Amount:'₹50,000'}},
+];
+let CUR=DOCS[0];
+function renderDoc(){
+ $('#tabs').innerHTML=DOCS.map((d,i)=>`<div class="tab ${d===CUR?'on':''}" data-i="${i}">${d.doctype} · ${d.name}</div>`).join('');
+ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{CUR=DOCS[+t.dataset.i];renderDoc();});
+ $('#sheet').innerHTML=`<div class="sheet"><h1>${CUR.name}</h1><span class="status">${CUR.doctype}</span>
+   <div class="grid">${Object.entries(CUR.fields).map(([k,v])=>`<div class="k">${k}</div><div class="v">${v}</div>`).join('')}</div></div>`;
+ $('#ctx').innerHTML=`👁 I can see you're viewing <b>${CUR.doctype} ${CUR.name}</b> — ask me about "this".`;
+}
+function fmt(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');}
+function um(t){chat.insertAdjacentHTML('beforeend',`<div class="msg user"><div class="bubble">${fmt(t)}</div></div>`);chat.scrollTop=1e9;}
+function am(h){chat.insertAdjacentHTML('beforeend',`<div class="msg agent"><div class="bubble">${h}</div></div>`);chat.scrollTop=1e9;}
+async function j(url,opts){opts=opts||{};opts.headers=Object.assign({'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},opts.headers||{});
+ const r=await fetch(url,opts);return r.json();}
+function card(p){
+ const id='w'+p.id;
+ chat.insertAdjacentHTML('beforeend',`<div class="card" id="${id}"><div class="h">${p.summary.replace(/</g,'&lt;')}<span class="badge">Approve?</span></div>
+  <div class="b">${Object.entries(p.fields||{}).filter(([k])=>!['name','docstatus'].includes(k)).map(([k,v])=>`<div class="k">${k}</div><div class="v">${(''+v).replace(/</g,'&lt;')}</div>`).join('')}</div>
+  <div class="a"><button class="btn approve">Approve</button><button class="btn">Reject</button></div></div>`);
+ const el=document.getElementById(id);
+ el.querySelector('.approve').onclick=async()=>{
+  const r=await j(`/api/proposals/${p.id}/approve`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
+  if(r.error){am(fmt('**Cannot approve:** '+r.error));return;}
+  el.classList.add('resolved');el.querySelector('.badge').className='badge go';el.querySelector('.badge').textContent='Done';
+  el.insertAdjacentHTML('beforeend',`<div class="res">✓ ${r.submitted} · read-back ${r.readback_ok?'verified':'FAILED'}</div>`);
+ };
+ el.querySelectorAll('.btn')[1].onclick=async()=>{
+  await j(`/api/proposals/${p.id}/reject`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
+  el.classList.add('resolved');el.querySelector('.badge').textContent='Rejected';
+ };
+ chat.scrollTop=1e9;
+}
+async function ask(text){
+ if(!text.trim())return;um(text);
+ const r=await j('/api/command',{method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({text,context:{doctype:CUR.doctype,name:CUR.name}})});
+ if(r.reply)am(fmt(r.reply));
+ (r.proposals||[]).forEach(card);
+}
+document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>ask(c.dataset.t));
+$('#send').onclick=()=>{const v=$('#input').value.trim();if(v){$('#input').value='';ask(v);}};
+$('#input').addEventListener('keydown',e=>{if(e.key==='Enter'){const v=$('#input').value.trim();if(v){$('#input').value='';ask(v);}}});
+$('#user').onchange=async()=>{await erpSession($('#user').value);chat.innerHTML='';am(`Now acting as <b>${$('#user').selectedOptions[0].text}</b> — my permissions changed with yours.`);};
+renderDoc();
+erpSession('ravi');
+am('Hi — I\'m embedded in your ERPNext, signed in as you. I can see the document you\'re viewing; ask me about "this", or anything else.');
+</script>
+</body>
+</html>

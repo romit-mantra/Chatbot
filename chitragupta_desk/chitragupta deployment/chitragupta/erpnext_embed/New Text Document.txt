@@ -1,0 +1,58 @@
+cd ~/frappe-bench
+curl http://192.168.179.1:8001/embed/chitragupta_desk.js \
+  -o apps/chitragupta_desk/chitragupta_desk/public/js/chitragupta_desk.js
+# re-add the window.CHITRAGUPTA_URL line at the top
+bench build --app chitragupta_desk && bench --site <site> clear-cache
+
+
+
+cd ~/frappe-bench
+
+# 1. confirm the source file actually has the buttons
+grep -c "cg-mic" apps/chitragupta_desk/chitragupta_desk/public/js/chitragupta_desk.js
+# should print a number > 0. If it prints 0, the new file never got copied in.
+
+# 2. confirm line 1 sets the backend URL
+head -1 apps/chitragupta_desk/chitragupta_desk/public/js/chitragupta_desk.js
+
+# 3. rebuild and clear
+bench build --app chitragupta_desk
+bench --site <your-site> clear-cache
+
+# 4. confirm the BUILT asset has it
+grep -c "cg-mic" sites/assets/chitragupta_desk/js/chitragupta_desk.js
+
+
+
+cd ~/frappe-bench
+
+# 1. add the missing URL line at the top
+sed -i '1i window.CHITRAGUPTA_URL = "http://192.168.179.1:8001";' \
+  apps/chitragupta_desk/chitragupta_desk/public/js/chitragupta_desk.js
+
+# verify it took — should now print the window.CHITRAGUPTA_URL line
+head -1 apps/chitragupta_desk/chitragupta_desk/public/js/chitragupta_desk.js
+
+# 2. start bench again (redis must be running for the build to register assets)
+bench start
+
+
+bench --site $(ls sites | grep -v assets | grep -v common_site_config | head -1) clear-cache
+
+
+cd ~/frappe-bench
+
+# 1. pull the fresh widget from the backend
+curl -s http://192.168.179.1:8001/embed/chitragupta_desk.js \
+  -o apps/chitragupta_desk/chitragupta_desk/public/js/chitragupta_desk.js
+
+# 2. re-add the backend URL as line 1 (curl overwrites the whole file)
+sed -i '1i window.CHITRAGUPTA_URL = "http://192.168.179.1:8001";' \
+  apps/chitragupta_desk/chitragupta_desk/public/js/chitragupta_desk.js
+
+# 3. sanity-check the new code is in there (should print a number > 0)
+grep -c "cg-dlbtn" apps/chitragupta_desk/chitragupta_desk/public/js/chitragupta_desk.js
+
+# 4. rebuild and clear cache
+bench build --app chitragupta_desk
+bench --site local.com clear-cache
